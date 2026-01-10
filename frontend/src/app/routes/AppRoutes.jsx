@@ -14,6 +14,8 @@ import RoomDetailsPage from '../../pages/public/RoomDetailsPage'
 import LoginPage from '../../pages/auth/LoginPage'
 import RegisterPage from '../../pages/auth/RegisterPage'
 import NotFoundPage from '../../pages/public/NotFoundPage'
+import AboutPage from '../../pages/public/AboutPage'
+import ContactPage from '../../pages/public/ContactPage'
 
 // Customer Pages
 import CustomerDashboard from '../../pages/customer/Dashboard'
@@ -40,6 +42,8 @@ const AppRoutes = () => {
           <Route path="rooms/:id" element={<RoomDetailsPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="contact" element={<ContactPage />} />
 
           <Route path="test-theme" element={<TestTheme />} />
         </Route>

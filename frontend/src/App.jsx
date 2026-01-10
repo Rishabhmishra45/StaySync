@@ -7,6 +7,7 @@ import AppRoutes from './app/routes/AppRoutes'
 import { AuthProvider } from './app/providers/AuthProvider'
 import { ThemeProvider } from './app/providers/ThemeProvider'
 
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

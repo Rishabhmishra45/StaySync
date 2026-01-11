@@ -25,7 +25,10 @@ export const formatDateTime = (date) => {
 }
 
 export const calculateNights = (checkIn, checkOut) => {
-  const diffTime = Math.abs(new Date(checkOut) - new Date(checkIn))
+  if (!checkIn || !checkOut) return 0
+  const start = new Date(checkIn)
+  const end = new Date(checkOut)
+  const diffTime = Math.abs(end - start)
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 }
 

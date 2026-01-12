@@ -1,21 +1,20 @@
+// src/components/auth/LoginForm.jsx
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../app/providers/AuthProvider'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
-import { validateEmail } from '../../utils/validators'
 
 const loginSchema = z.object({
   email: z.string()
     .min(1, 'Email is required')
-    .email('Invalid email address')
-    .refine(validateEmail, 'Please enter a valid email'),
+    .email('Invalid email address'),
   password: z.string()
     .min(6, 'Password must be at least 6 characters')
     .max(50, 'Password is too long'),
@@ -25,8 +24,9 @@ const loginSchema = z.object({
 const LoginForm = ({ onSuccess, className = '' }) => {
   const [showPassword, setShowPassword] = React.useState(false)
   const { login } = useAuth()
+  const navigate = useNavigate()
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -39,10 +39,18 @@ const LoginForm = ({ onSuccess, className = '' }) => {
     mutationFn: login,
     onSuccess: (data) => {
       toast.success('Welcome back!')
+      
+      // Navigate based on user role
+      if (data.user?.role === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate('/dashboard')
+      }
+      
       if (onSuccess) onSuccess(data)
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Invalid credentials')
+      toast.error(error.message || 'Invalid credentials')
     }
   })
 

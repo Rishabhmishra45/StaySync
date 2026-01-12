@@ -1,7 +1,6 @@
 // src/app/providers/AuthProvider.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { authService } from '../../services/api/auth'
-import { storage } from '../../services/storage'
 
 const AuthContext = createContext()
 
@@ -16,59 +15,117 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [backendStatus, setBackendStatus] = useState('checking')
 
   useEffect(() => {
-    checkAuth()
+    initializeAuth()
+    checkBackendStatus()
   }, [])
 
-  const checkAuth = async () => {
+  const checkBackendStatus = async () => {
     try {
-      const token = storage.getToken()
-      if (token) {
-        const userData = await authService.getCurrentUser()
-        setUser(userData)
+      const response = await fetch('http://localhost:5000/api/health')
+      if (response.ok) {
+        setBackendStatus('online')
+      } else {
+        setBackendStatus('offline')
       }
     } catch (error) {
-      storage.clearToken()
+      setBackendStatus('offline')
+      console.warn('Backend is offline')
+    }
+  }
+
+  const initializeAuth = () => {
+    const storedUser = authService.getStoredUser()
+    const token = authService.getToken()
+    
+    if (token && storedUser) {
+      setUser(storedUser)
+    }
+    
+    setLoading(false)
+  }
+
+  const login = async (credentials) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const result = await authService.login(credentials)
+      
+      if (result.success) {
+        setUser(result.user)
+        setBackendStatus('online')
+        return result
+      } else {
+        if (result.backendOffline) {
+          setBackendStatus('offline')
+          setError('Backend server is offline. Please start the server first.')
+        } else {
+          setError(result.message)
+        }
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      setError(error.message || 'Login failed')
+      throw error
     } finally {
       setLoading(false)
     }
   }
 
-  const login = async (email, password) => {
-    const response = await authService.login({ email, password })
-    storage.setToken(response.token)
-    setUser(response.user)
-    return response
-  }
-
   const register = async (userData) => {
-    const response = await authService.register(userData)
-    storage.setToken(response.token)
-    setUser(response.user)
-    return response
+    setLoading(true)
+    setError(null)
+    try {
+      const result = await authService.register(userData)
+      
+      if (result.success) {
+        setUser(result.user)
+        setBackendStatus('online')
+        return result
+      } else {
+        if (result.backendOffline) {
+          setBackendStatus('offline')
+          setError('Backend server is offline. Please start the server first.')
+        } else {
+          setError(result.message)
+        }
+        throw new Error(result.message)
+      }
+    } catch (error) {
+      setError(error.message || 'Registration failed')
+      throw error
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const logout = () => {
-    storage.clearToken()
-    setUser(null)
-    window.location.href = '/login'
+  const logout = async () => {
+    try {
+      await authService.logout()
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      setUser(null)
+    }
   }
 
-  const updateProfile = (userData) => {
-    setUser(prev => ({ ...prev, ...userData }))
-  }
+  const clearError = () => setError(null)
 
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
+        error,
+        backendStatus,
         login,
         register,
         logout,
-        updateProfile,
-        isAuthenticated: !!user,
+        clearError,
+        isAuthenticated: !!user && !!authService.getToken(),
         isAdmin: user?.role === 'admin'
       }}
     >

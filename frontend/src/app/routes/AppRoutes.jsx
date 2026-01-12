@@ -1,8 +1,9 @@
-// src/app/routes/AppRoutes.jsx
+// src/app/routes/AppRoutes.jsx (Updated)
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import MainLayout from '../layouts/MainLayout'
+import AdminLayout from '../layouts/AdminLayout'
 import DashboardLayout from '../layouts/DashboardLayout'
 import AuthGuard from '../guards/AuthGuard'
 import RoleGuard from '../guards/RoleGuard'
@@ -28,6 +29,9 @@ import ManageBookings from '../../pages/admin/ManageBookings'
 import ManageRooms from '../../pages/admin/ManageRooms'
 import ManageUsers from '../../pages/admin/ManageUsers'
 import AdminSettings from '../../pages/admin/Settings'
+import CreateRoom from '../../pages/admin/CreateRoom'
+import AdminAnalytics from '../../pages/admin/Analytics'
+import AdminReports from '../../pages/admin/Reports'
 
 import TestTheme from '../../pages/public/TestTheme'
 
@@ -44,7 +48,6 @@ const AppRoutes = () => {
           <Route path="register" element={<RegisterPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="contact" element={<ContactPage />} />
-
           <Route path="test-theme" element={<TestTheme />} />
         </Route>
 
@@ -68,7 +71,7 @@ const AppRoutes = () => {
           element={
             <AuthGuard>
               <RoleGuard requiredRole="admin">
-                <DashboardLayout />
+                <AdminLayout />
               </RoleGuard>
             </AuthGuard>
           }
@@ -76,8 +79,11 @@ const AppRoutes = () => {
           <Route index element={<AdminDashboard />} />
           <Route path="bookings" element={<ManageBookings />} />
           <Route path="rooms" element={<ManageRooms />} />
+          <Route path="rooms/create" element={<CreateRoom />} />
           <Route path="users" element={<ManageUsers />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
+          <Route path="reports" element={<AdminReports />} />
         </Route>
 
         {/* 404 Route */}

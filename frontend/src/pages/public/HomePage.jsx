@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
-import { 
-  Search, Star, Users, Wifi, Coffee, Car, 
+import {
+  Search, Star, Users, Wifi, Coffee, Car,
   Shield, Utensils, Tv, Wind, ChevronRight,
   ArrowRight, Check, Award, Sparkles, Heart,
   MapPin, Calendar, ChevronLeft, ChevronRight as RightIcon
@@ -28,7 +28,8 @@ const HomePage = () => {
     "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2070&q=80",
     "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=2070&q=80",
     "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=2070&q=80",
-    "https://images.unsplash.com/photo-1564501049418-3c27787d01e8?auto=format&fit=crop&w=2070&q=80"
+    // "https://images.unsplash.com/photo-1564501049418-3c27787d01e8?auto=format&fit=crop&w=2070&q=80"
+    "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80"
   ]
 
   // Extract rooms from response
@@ -79,11 +80,10 @@ const HomePage = () => {
           {heroImages.map((image, index) => (
             <div
               key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                index === currentSlide ? 'opacity-100' : 'opacity-0'
-              }`}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'
+                }`}
             >
-              <img 
+              <img
                 src={image}
                 alt={`Luxury Hotel ${index + 1}`}
                 className="w-full h-full object-cover"
@@ -101,11 +101,10 @@ const HomePage = () => {
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentSlide 
-                  ? 'bg-white scale-125' 
-                  : 'bg-white/50 hover:bg-white/80'
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+                ? 'bg-white scale-125'
+                : 'bg-white/50 hover:bg-white/80'
+                }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
@@ -146,7 +145,7 @@ const HomePage = () => {
                 <Sparkles className="w-4 h-4 mr-2" />
                 Premium Luxury Resort
               </motion.div>
-              
+
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -155,14 +154,14 @@ const HomePage = () => {
               >
                 Experience <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">Ultimate Luxury</span>
               </motion.h1>
-              
+
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.4 }}
                 className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl"
               >
-                StaySynce offers unparalleled luxury accommodations with premium amenities, 
+                StaySynce offers unparalleled luxury accommodations with premium amenities,
                 exceptional service, and memories that last a lifetime.
               </motion.p>
 
@@ -190,15 +189,15 @@ const HomePage = () => {
                 transition={{ duration: 0.7, delay: 0.6 }}
                 className="flex flex-col sm:flex-row gap-4"
               >
-                <Button 
-                  as="a" 
+                <Button
+                  as="a"
                   href="/rooms"
                   className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-8 py-3 rounded-lg shadow-lg"
                 >
                   Book Now <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
-                <Button 
-                  as="a" 
+                <Button
+                  as="a"
                   href="/about"
                   className="bg-white/10 backdrop-blur-sm border-2 border-white/30 hover:bg-white/20 text-white px-8 py-3 rounded-lg"
                 >
@@ -224,7 +223,7 @@ const HomePage = () => {
                   </p>
                 </div>
                 <SearchWidget />
-                
+
                 {/* Trust Badge */}
                 <div className="mt-6 pt-6 border-t border-white/20">
                   <div className="flex flex-wrap items-center justify-center gap-4">
@@ -317,9 +316,9 @@ const HomePage = () => {
           {/* View All Button */}
           {rooms.length > 0 && (
             <div className="text-center mt-12">
-              <Button 
-                as="a" 
-                href="/rooms" 
+              <Button
+                as="a"
+                href="/rooms"
                 variant="outline"
                 className="group border-primary dark:border-primary-light text-primary dark:text-primary-light hover:bg-primary dark:hover:bg-primary-light hover:text-white px-8 py-3 rounded-lg"
               >
@@ -386,20 +385,20 @@ const HomePage = () => {
                     Ready for Your Dream Vacation?
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Book your stay today and experience luxury like never before. 
+                    Book your stay today and experience luxury like never before.
                     Enjoy premium amenities, exceptional service, and create unforgettable memories.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <Button 
-                      as="a" 
-                      href="/rooms" 
+                    <Button
+                      as="a"
+                      href="/rooms"
                       className="bg-gradient-to-r from-primary to-secondary dark:from-primary-light dark:to-secondary-light hover:from-primary/90 hover:to-secondary/90 text-white px-6 py-3"
                     >
                       Book Your Stay
                     </Button>
-                    <Button 
-                      as="a" 
-                      href="/contact" 
+                    <Button
+                      as="a"
+                      href="/contact"
                       variant="outline"
                       className="border-primary dark:border-primary-light text-primary dark:text-primary-light hover:bg-primary dark:hover:bg-primary-light hover:text-white px-6 py-3"
                     >

@@ -1,26 +1,25 @@
 // src/services/api/axios.js
 import axios from 'axios'
-import { storage } from '../storage'
 
+// IMPORTANT: Remove any environment variables and use direct URL
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
+  baseURL: 'http://localhost:5000/api', // Make sure it's /api
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   },
-  timeout: 10000, // 10 seconds timeout
+  timeout: 10000
 })
 
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    const token = storage.getToken()
+    const token = localStorage.getItem('staysync_token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
   },
   (error) => {
-    console.error('Request error:', error)
     return Promise.reject(error)
   }
 )
@@ -28,54 +27,35 @@ api.interceptors.request.use(
 // Response interceptor
 api.interceptors.response.use(
   (response) => {
-    // Return the data directly for easier access
-    return {
-      ...response,
-      data: response.data.data || response.data,
-      meta: response.data.meta,
-      pagination: response.data.pagination
-    }
+    return response
   },
   (error) => {
-    // Handle errors
-    if (error.response) {
-      const { status, data } = error.response
-      
-      // Auto logout on 401 Unauthorized
-      if (status === 401) {
-        storage.clearToken()
-        storage.clearUser()
-        // Redirect to login page
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
-        }
-      }
-      
-      // Extract error message
-      const errorMessage = data?.message || data?.error || `Request failed with status ${status}`
-      console.error(`API Error ${status}:`, errorMessage)
-      
-      // Return a consistent error structure
+    console.error('API Error Details:', {
+      message: error.message,
+      code: error.code,
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status
+    })
+
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
       return Promise.reject({
-        message: errorMessage,
-        status,
-        data: data || {}
-      })
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('Network error:', error.request)
-      return Promise.reject({
-        message: 'Network error. Please check your connection.',
-        status: 0
-      })
-    } else {
-      // Something happened in setting up the request
-      console.error('Request setup error:', error.message)
-      return Promise.reject({
-        message: error.message || 'Request failed',
-        status: 0
+        message: 'Cannot connect to server. Please make sure the backend is running on http://localhost:5000',
+        status: 0,
+        code: 'NETWORK_ERROR'
       })
     }
+
+    // If 404, check if it's because of missing /api prefix
+    if (error.response?.status === 404) {
+      console.error('404 Error - Check if route exists:', error.config?.url)
+    }
+
+    return Promise.reject({
+      message: error.response?.data?.message || error.response?.data?.error || 'An error occurred',
+      status: error.response?.status,
+      data: error.response?.data
+    })
   }
 )
 

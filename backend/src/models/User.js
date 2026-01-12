@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema({
     enum: ['customer', 'admin'],
     default: 'customer',
   },
+  phone: {
+    type: String,
+    trim: true,
+  },
   isActive: {
     type: Boolean,
     default: true,
@@ -69,6 +73,13 @@ userSchema.pre('save', function (next) {
 // Compare password method
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Method to get user profile (without password)
+userSchema.methods.getProfile = function () {
+  const userObject = this.toObject();
+  delete userObject.password;
+  return userObject;
 };
 
 const User = mongoose.model('User', userSchema);

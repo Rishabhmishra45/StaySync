@@ -20,9 +20,14 @@ const Navbar = () => {
     { to: '/contact', label: 'Contact' }
   ]
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
+  const handleLogout = async () => {
+    try {
+      await logout()
+      setIsMenuOpen(false)
+      navigate('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
 
   return (
@@ -67,12 +72,12 @@ const Navbar = () => {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold">
-                      {user?.name?.charAt(0)}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                      {user?.name?.charAt(0) || 'U'}
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium text-foreground">{user?.name}</p>
-                      <p className="text-xs text-gray-500">{user?.role}</p>
+                      <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
                     </div>
                   </div>
                   <Link to={user?.role === 'admin' ? '/admin' : '/dashboard'}>
@@ -85,7 +90,7 @@ const Navbar = () => {
                     variant="ghost" 
                     size="sm" 
                     onClick={handleLogout}
-                    className="text-red-600 hover:text-red-700"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/10"
                   >
                     Logout
                   </Button>
@@ -98,7 +103,7 @@ const Navbar = () => {
                     </Button>
                   </Link>
                   <Link to="/register">
-                    <Button size="sm" className="bg-primary hover:bg-primary/90">
+                    <Button size="sm" className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90">
                       Sign Up
                     </Button>
                   </Link>
@@ -108,8 +113,9 @@ const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               onClick={() => setIsMenuOpen(true)}
+              aria-label="Open menu"
             >
               <Menu className="w-6 h-6 text-foreground" />
             </button>
@@ -154,6 +160,7 @@ const Navbar = () => {
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Toggle theme"
               >
                 Switch
               </button>
@@ -161,26 +168,23 @@ const Navbar = () => {
 
             {isAuthenticated ? (
               <div className="space-y-3">
-                <div className="px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <div className="px-4 py-3 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg">
                   <p className="font-medium text-foreground">{user?.name}</p>
-                  <p className="text-sm text-gray-500">{user?.email}</p>
-                  <span className="text-xs px-2 py-1 mt-1 inline-block rounded-full bg-primary/10 text-primary">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{user?.email}</p>
+                  <span className="text-xs px-2 py-1 mt-1 inline-block rounded-full bg-primary/20 text-primary font-medium capitalize">
                     {user?.role}
                   </span>
                 </div>
                 <Link
                   to={user?.role === 'admin' ? '/admin' : '/dashboard'}
-                  className="block w-full text-center px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                  className="block w-full text-center px-4 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Go to Dashboard
                 </Link>
                 <button
-                  onClick={() => {
-                    handleLogout()
-                    setIsMenuOpen(false)
-                  }}
-                  className="block w-full text-center px-4 py-3 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  onClick={handleLogout}
+                  className="block w-full text-center px-4 py-3 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium"
                 >
                   Logout
                 </button>
@@ -189,14 +193,14 @@ const Navbar = () => {
               <div className="space-y-3">
                 <Link
                   to="/login"
-                  className="block w-full text-center px-4 py-3 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors"
+                  className="block w-full text-center px-4 py-3 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/register"
-                  className="block w-full text-center px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                  className="block w-full text-center px-4 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign Up

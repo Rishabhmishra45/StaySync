@@ -1,3 +1,4 @@
+// src/routes/roomRoutes.js
 const express = require('express');
 const router = express.Router();
 const { protect, admin } = require('../middlewares/authMiddleware');
@@ -8,10 +9,39 @@ const Room = require('../models/Room');
 // @access  Public
 router.get('/', async (req, res, next) => {
   try {
-    const rooms = await Room.find({ available: true });
+    const { featured } = req.query;
+    
+    let filter = { available: true };
+    
+    // Add featured filter if requested
+    if (featured === 'true') {
+      filter.featured = true;
+    }
+    
+    const rooms = await Room.find(filter);
     res.json({
       success: true,
       message: 'Rooms retrieved successfully',
+      data: rooms
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc    Get featured rooms
+// @route   GET /api/rooms/featured
+// @access  Public
+router.get('/featured', async (req, res, next) => {
+  try {
+    const rooms = await Room.find({ 
+      featured: true, 
+      available: true 
+    }).limit(6);
+    
+    res.json({
+      success: true,
+      message: 'Featured rooms retrieved successfully',
       data: rooms
     });
   } catch (error) {

@@ -1,173 +1,251 @@
 // src/services/api/auth.js
-import api from './axios'
+import api from "../api/axios";
 
 export const authService = {
+  // ✅ LOGIN (ADDED)
   login: async (credentials) => {
     try {
-      const response = await api.post('/api/auth/login', credentials)
-      
-      // Check if response has data
+      console.log("Attempting login with data:", credentials);
+      console.log("API base URL should be:", api.defaults.baseURL);
+
+      const response = await api.post("/auth/login", credentials);
+
+      console.log("Login response:", response.data);
+
       if (response.data && response.data.success) {
-        const token = response.data.token
-        const user = response.data.user
-        
+        const token = response.data.token;
+        const user = response.data.user;
+
         if (token) {
-          // Store token and user in localStorage
-          localStorage.setItem('staysynce_token', token)
+          localStorage.setItem("staysync_token", token);
           if (user) {
-            localStorage.setItem('staysynce_user', JSON.stringify(user))
+            localStorage.setItem("staysync_user", JSON.stringify(user));
           }
         }
-        
+
         return {
           success: true,
           token,
           user,
-          message: response.data.message || 'Login successful'
-        }
-      } else {
-        return {
-          success: false,
-          message: 'Invalid response from server'
-        }
+          message: response.data.message || "Login successful",
+        };
       }
-    } catch (error) {
-      console.error('Login error:', error)
-      
-      // Handle 404 specifically
-      if (error.status === 404) {
-        return {
-          success: false,
-          message: 'Login endpoint not found. Please check backend configuration.',
-          error
-        }
-      }
-      
+
       return {
         success: false,
-        message: error.message || 'Login failed. Please check your credentials.',
-        error
+        message: response.data?.message || "Invalid response from server",
+      };
+    } catch (error) {
+      console.error("Login error details:", {
+        message: error.message,
+        status: error.status,
+        code: error.code,
+        url: error.config?.url,
+        fullError: error,
+      });
+
+      // ✅ Backend Offline / Network Error
+      if (
+        error.code === "ERR_NETWORK" ||
+        error.code === "NETWORK_ERROR" ||
+        error.status === 0 ||
+        !error.response
+      ) {
+        return {
+          success: false,
+          message:
+            "Cannot connect to server. Please make sure the backend is running on http://localhost:5000",
+          backendOffline: true,
+        };
       }
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.message ||
+          error.message ||
+          "Login failed. Please check if backend is running.",
+        error: error.response?.data || error,
+      };
     }
   },
 
+  // ✅ REGISTER (your code preserved)
   register: async (userData) => {
     try {
-      const response = await api.post('/api/auth/register', userData)
-      
+      console.log("Attempting registration with data:", userData);
+      console.log("API base URL should be:", api.defaults.baseURL);
+
+      const response = await api.post("/auth/register", userData);
+
+      console.log("Registration response:", response.data);
+
       if (response.data && response.data.success) {
-        const token = response.data.token
-        const user = response.data.user
-        
+        const token = response.data.token;
+        const user = response.data.user;
+
         if (token) {
-          localStorage.setItem('staysynce_token', token)
+          localStorage.setItem("staysync_token", token);
           if (user) {
-            localStorage.setItem('staysynce_user', JSON.stringify(user))
+            localStorage.setItem("staysync_user", JSON.stringify(user));
           }
         }
-        
+
         return {
           success: true,
           token,
           user,
-          message: response.data.message || 'Registration successful'
-        }
-      } else {
-        return {
-          success: false,
-          message: 'Invalid response from server'
-        }
+          message: response.data.message || "Registration successful",
+        };
       }
-    } catch (error) {
-      console.error('Registration error:', error)
-      
-      if (error.status === 404) {
-        return {
-          success: false,
-          message: 'Registration endpoint not found. Please check backend configuration.',
-          error
-        }
-      }
-      
+
       return {
         success: false,
-        message: error.message || 'Registration failed',
-        error
+        message: response.data?.message || "Invalid response from server",
+      };
+    } catch (error) {
+      console.error("Registration error details:", {
+        message: error.message,
+        status: error.status,
+        code: error.code,
+        url: error.config?.url,
+        fullError: error,
+      });
+
+      // ✅ Backend Offline / Network Error
+      if (
+        error.code === "ERR_NETWORK" ||
+        error.code === "NETWORK_ERROR" ||
+        error.status === 0 ||
+        !error.response
+      ) {
+        return {
+          success: false,
+          message:
+            "Cannot connect to server. Please make sure the backend is running on http://localhost:5000",
+          backendOffline: true,
+        };
       }
+
+      return {
+        success: false,
+        message:
+          error.response?.data?.message ||
+          error.message ||
+          "Registration failed. Please check if backend is running.",
+        error: error.response?.data || error,
+      };
     }
   },
 
   getCurrentUser: async () => {
     try {
-      const response = await api.get('/api/auth/me')
-      
+      const response = await api.get("/auth/me");
+
       if (response.data && response.data.success) {
-        const user = response.data.user
-        
+        const user = response.data.user;
+
         if (user) {
-          localStorage.setItem('staysynce_user', JSON.stringify(user))
+          localStorage.setItem("staysync_user", JSON.stringify(user));
         }
-        
+
         return {
           success: true,
           user,
-          message: response.data.message || 'User retrieved successfully'
-        }
+          message: response.data.message || "User retrieved successfully",
+        };
       } else {
         return {
           success: false,
-          message: 'Invalid response from server'
-        }
+          message: response.data?.message || "Invalid response from server",
+        };
       }
     } catch (error) {
-      console.error('Get current user error:', error)
-      
-      if (error.status === 401) {
-        localStorage.removeItem('staysynce_token')
-        localStorage.removeItem('staysynce_user')
+      console.error("Get current user error:", error);
+
+      // Clear storage on auth errors
+      if (error.response?.status === 401) {
+        authService.clearStorage();
       }
-      
+
       return {
         success: false,
-        message: error.message || 'Failed to get user data',
-        error
-      }
+        message: error.response?.data?.message || "Failed to get user data",
+        error: error.response?.data || error,
+      };
     }
   },
 
   logout: async () => {
     try {
-      await api.post('/api/auth/logout')
+      await api.post("/auth/logout");
     } catch (error) {
-      console.error('Logout API error:', error)
+      console.error("Logout API error:", error);
       // Continue with client-side logout even if API call fails
     } finally {
-      localStorage.removeItem('staysynce_token')
-      localStorage.removeItem('staysynce_user')
+      authService.clearStorage();
       return {
         success: true,
-        message: 'Logged out successfully'
-      }
+        message: "Logged out successfully",
+      };
     }
   },
 
-  // Utility methods
+  updateProfile: async (userData) => {
+    try {
+      const response = await api.put("/auth/profile", userData);
+
+      if (response.data && response.data.success) {
+        const user = response.data.user;
+
+        if (user) {
+          localStorage.setItem("staysync_user", JSON.stringify(user));
+        }
+
+        return {
+          success: true,
+          user,
+          message: response.data.message || "Profile updated successfully",
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data?.message || "Update failed",
+        };
+      }
+    } catch (error) {
+      console.error("Update profile error:", error);
+
+      return {
+        success: false,
+        message: error.response?.data?.message || "Failed to update profile",
+        error: error.response?.data || error,
+      };
+    }
+  },
+
+  // ✅ Utility methods (your code preserved)
   isAuthenticated: () => {
-    const token = localStorage.getItem('staysynce_token')
-    return !!token
+    const token = localStorage.getItem("staysync_token");
+    return !!token;
   },
 
   getStoredUser: () => {
     try {
-      const userStr = localStorage.getItem('staysynce_user')
-      return userStr ? JSON.parse(userStr) : null
+      const userStr = localStorage.getItem("staysync_user");
+      return userStr ? JSON.parse(userStr) : null;
     } catch (error) {
-      console.error('Error parsing stored user:', error)
-      return null
+      console.error("Error parsing stored user:", error);
+      return null;
     }
   },
 
   getToken: () => {
-    return localStorage.getItem('staysynce_token')
-  }
-}
+    return localStorage.getItem("staysync_token");
+  },
+
+  clearStorage: () => {
+    localStorage.removeItem("staysync_token");
+    localStorage.removeItem("staysync_user");
+  },
+};

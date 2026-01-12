@@ -1,3 +1,4 @@
+// src/app.js
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -13,7 +14,6 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const roomRoutes = require('./routes/roomRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
-const paymentRoutes = require('./routes/paymentRoutes');
 
 // Import middleware
 const errorHandler = require('./middlewares/errorMiddleware');
@@ -21,26 +21,21 @@ const errorHandler = require('./middlewares/errorMiddleware');
 // Initialize app
 const app = express();
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"]
-    }
-  },
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
-
-// Enable CORS
+// Enable CORS - Allow all origins for development
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: '*', // Allow all origins for now
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Handle preflight requests
+app.options('*', cors());
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable for now to simplify
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 // Logging
@@ -72,12 +67,11 @@ app.use(xss());
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// API routes
+// API routes - Make sure these are correctly mounted
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', bookingRoutes);
-app.use('/api/payments', paymentRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -87,6 +81,14 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV
+  });
+});
+
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'API is working!'
   });
 });
 

@@ -1,194 +1,126 @@
-// src/services/api/rooms.js
+// src/services/api/rooms.js (UPDATED VERSION)
 import api from './axios'
 
 export const roomsService = {
-  // Get all rooms with filters
   getAll: async (params = {}) => {
     try {
-      const response = await api.get('/api/rooms', { params })
-      
-      // Handle different response structures
-      let rooms = []
-      let meta = {}
-      
-      if (response.data) {
-        if (Array.isArray(response.data)) {
-          rooms = response.data
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          rooms = response.data.data
-          meta = response.data.meta || response.data.pagination || {}
-        } else if (response.data.rooms && Array.isArray(response.data.rooms)) {
-          rooms = response.data.rooms
-          meta = response.data.meta || response.data.pagination || {}
-        } else if (typeof response.data === 'object') {
-          // Try to find any array in the response
-          const arrays = Object.values(response.data).filter(Array.isArray)
-          if (arrays.length > 0) {
-            rooms = arrays[0]
-          }
-        }
-      }
-      
-      return {
-        success: true,
-        data: rooms,
-        meta,
-        total: rooms.length,
-        message: response.data?.message || 'Rooms retrieved successfully'
-      }
+      const response = await api.get('/rooms', { params })
+      return response.data
     } catch (error) {
       console.error('Get rooms error:', error)
       return {
         success: false,
         data: [],
-        message: error.message || 'Failed to fetch rooms',
-        error
+        message: error.message || 'Failed to fetch rooms'
       }
     }
   },
 
-  // Get featured rooms
   getFeatured: async () => {
     try {
-      const response = await api.get('/api/rooms/featured')
-      
-      let rooms = []
-      if (response.data) {
-        if (Array.isArray(response.data)) {
-          rooms = response.data
-        } else if (response.data.data && Array.isArray(response.data.data)) {
-          rooms = response.data.data
-        } else if (response.data.rooms && Array.isArray(response.data.rooms)) {
-          rooms = response.data.rooms
-        }
-      }
-      
-      return {
-        success: true,
-        data: rooms,
-        message: response.data?.message || 'Featured rooms retrieved successfully'
-      }
+      const response = await api.get('/rooms/featured')
+      return response.data
     } catch (error) {
       console.error('Get featured rooms error:', error)
       return {
         success: false,
         data: [],
-        message: error.message || 'Failed to fetch featured rooms',
-        error
+        message: error.message || 'Failed to fetch featured rooms'
       }
     }
   },
 
-  // Get single room by ID
   getById: async (id) => {
     try {
-      const response = await api.get(`/api/rooms/${id}`)
-      
-      let room = null
-      if (response.data) {
-        room = response.data.room || response.data.data || response.data
-      }
-      
-      if (!room) {
-        throw new Error('Room not found')
-      }
-      
-      return {
-        success: true,
-        data: room,
-        message: response.data?.message || 'Room retrieved successfully'
-      }
+      const response = await api.get(`/rooms/${id}`)
+      return response.data
     } catch (error) {
       console.error('Get room by ID error:', error)
       return {
         success: false,
         data: null,
-        message: error.message || 'Failed to fetch room',
-        error
+        message: error.message || 'Failed to fetch room'
       }
     }
   },
 
-  // Check room availability
-  checkAvailability: async (id, checkIn, checkOut) => {
+  create: async (roomData) => {
     try {
-      const response = await api.get(`/api/rooms/${id}/availability`, {
-        params: { checkIn, checkOut }
+      console.log('Creating room with data:', roomData)
+      
+      // Make sure data is in correct format
+      const formattedData = {
+        ...roomData,
+        pricePerNight: Number(roomData.pricePerNight),
+        capacity: Number(roomData.capacity),
+        size: Number(roomData.size),
+        bathrooms: Number(roomData.bathrooms),
+        floor: Number(roomData.floor)
+      }
+      
+      console.log('Formatted data for API:', formattedData)
+      
+      const response = await api.post('/rooms', formattedData)
+      
+      console.log('Room creation response:', response)
+      
+      return response.data
+    } catch (error) {
+      console.error('Create room error details:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        config: error.config
       })
       
       return {
-        success: true,
-        data: response.data?.data || response.data,
-        message: response.data?.message || 'Availability checked successfully'
-      }
-    } catch (error) {
-      console.error('Check availability error:', error)
-      return {
-        success: false,
-        data: { available: false },
-        message: error.message || 'Failed to check availability',
-        error
-      }
-    }
-  },
-
-  // Create room (admin only)
-  create: async (roomData) => {
-    try {
-      const response = await api.post('/api/rooms', roomData)
-      
-      return {
-        success: true,
-        data: response.data?.data || response.data,
-        message: response.data?.message || 'Room created successfully'
-      }
-    } catch (error) {
-      console.error('Create room error:', error)
-      return {
         success: false,
         data: null,
-        message: error.message || 'Failed to create room',
-        error
+        message: error.response?.data?.message || error.message || 'Failed to create room',
+        error: error.response?.data
       }
     }
   },
 
-  // Update room (admin only)
   update: async (id, roomData) => {
     try {
-      const response = await api.put(`/api/rooms/${id}`, roomData)
-      
-      return {
-        success: true,
-        data: response.data?.data || response.data,
-        message: response.data?.message || 'Room updated successfully'
-      }
+      const response = await api.put(`/rooms/${id}`, roomData)
+      return response.data
     } catch (error) {
       console.error('Update room error:', error)
       return {
         success: false,
         data: null,
-        message: error.message || 'Failed to update room',
-        error
+        message: error.message || 'Failed to update room'
       }
     }
   },
 
-  // Delete room (admin only)
   delete: async (id) => {
     try {
-      const response = await api.delete(`/api/rooms/${id}`)
-      
-      return {
-        success: true,
-        message: response.data?.message || 'Room deleted successfully'
-      }
+      const response = await api.delete(`/rooms/${id}`)
+      return response.data
     } catch (error) {
       console.error('Delete room error:', error)
       return {
         success: false,
-        message: error.message || 'Failed to delete room',
-        error
+        message: error.message || 'Failed to delete room'
+      }
+    }
+  },
+
+  checkAvailability: async (id, checkIn, checkOut) => {
+    try {
+      const response = await api.get(`/rooms/${id}/availability`, {
+        params: { checkIn, checkOut }
+      })
+      return response.data
+    } catch (error) {
+      console.error('Check availability error:', error)
+      return {
+        success: false,
+        data: { available: false },
+        message: error.message || 'Failed to check availability'
       }
     }
   }

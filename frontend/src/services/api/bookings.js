@@ -1,11 +1,10 @@
-// src/services/api/bookings.js
 import api from './axios'
 
 export const bookingsService = {
   // Create a new booking
   create: async (bookingData) => {
     try {
-      const response = await api.post('/api/bookings', bookingData)
+      const response = await api.post('/bookings', bookingData)  // REMOVED /api prefix
       
       return {
         success: true,
@@ -26,34 +25,33 @@ export const bookingsService = {
   // Get user's bookings
   getMyBookings: async () => {
     try {
-      const response = await api.get('/api/bookings/my')
+      const response = await api.get('/bookings/my')  // REMOVED /api prefix
       
+      // Extract bookings from response
       let bookings = []
-      let meta = {}
       
       if (response.data) {
+        // Case 1: Direct array
         if (Array.isArray(response.data)) {
           bookings = response.data
-        } else if (response.data.data && Array.isArray(response.data.data)) {
+        }
+        // Case 2: Response has data property
+        else if (response.data.data && Array.isArray(response.data.data)) {
           bookings = response.data.data
-          meta = response.data.meta || response.data.pagination || {}
-        } else if (response.data.bookings && Array.isArray(response.data.bookings)) {
+        }
+        // Case 3: Response has bookings property
+        else if (response.data.bookings && Array.isArray(response.data.bookings)) {
           bookings = response.data.bookings
-          meta = response.data.meta || response.data.pagination || {}
-        } else if (typeof response.data === 'object') {
-          // Try to find any array in the response
-          const arrays = Object.values(response.data).filter(Array.isArray)
-          if (arrays.length > 0) {
-            bookings = arrays[0]
-          }
+        }
+        // Case 4: Response is object with success property
+        else if (response.data.success && response.data.data && Array.isArray(response.data.data)) {
+          bookings = response.data.data
         }
       }
       
       return {
         success: true,
         data: bookings,
-        meta,
-        total: bookings.length,
         message: response.data?.message || 'Bookings retrieved successfully'
       }
     } catch (error) {
@@ -70,32 +68,33 @@ export const bookingsService = {
   // Get all bookings (admin only)
   getAll: async (params = {}) => {
     try {
-      const response = await api.get('/api/bookings', { params })
+      const response = await api.get('/bookings', { params })  // REMOVED /api prefix
       
+      // Extract bookings from response
       let bookings = []
-      let meta = {}
-      let pagination = {}
       
       if (response.data) {
+        // Case 1: Direct array
         if (Array.isArray(response.data)) {
           bookings = response.data
-        } else if (response.data.data && Array.isArray(response.data.data)) {
+        }
+        // Case 2: Response has data property
+        else if (response.data.data && Array.isArray(response.data.data)) {
           bookings = response.data.data
-          meta = response.data.meta || {}
-          pagination = response.data.pagination || {}
-        } else if (response.data.bookings && Array.isArray(response.data.bookings)) {
+        }
+        // Case 3: Response has bookings property
+        else if (response.data.bookings && Array.isArray(response.data.bookings)) {
           bookings = response.data.bookings
-          meta = response.data.meta || {}
-          pagination = response.data.pagination || {}
+        }
+        // Case 4: Response is object with success property
+        else if (response.data.success && response.data.data && Array.isArray(response.data.data)) {
+          bookings = response.data.data
         }
       }
       
       return {
         success: true,
         data: bookings,
-        meta,
-        pagination,
-        total: bookings.length,
         message: response.data?.message || 'Bookings retrieved successfully'
       }
     } catch (error) {
@@ -112,7 +111,7 @@ export const bookingsService = {
   // Get booking by ID
   getById: async (id) => {
     try {
-      const response = await api.get(`/api/bookings/${id}`)
+      const response = await api.get(`/bookings/${id}`)  // REMOVED /api prefix
       
       return {
         success: true,
@@ -133,7 +132,7 @@ export const bookingsService = {
   // Update booking status (admin only)
   updateStatus: async (id, status) => {
     try {
-      const response = await api.patch(`/api/bookings/${id}`, { status })
+      const response = await api.patch(`/bookings/${id}`, { status })  // REMOVED /api prefix
       
       return {
         success: true,
@@ -154,7 +153,7 @@ export const bookingsService = {
   // Update booking (admin only)
   update: async (id, bookingData) => {
     try {
-      const response = await api.put(`/api/bookings/${id}`, bookingData)
+      const response = await api.put(`/bookings/${id}`, bookingData)  // REMOVED /api prefix
       
       return {
         success: true,
@@ -175,9 +174,9 @@ export const bookingsService = {
   // Cancel booking
   cancel: async (id, reason) => {
     try {
-      const response = await api.delete(`/api/bookings/${id}`, { 
+      const response = await api.delete(`/bookings/${id}`, { 
         data: { reason } 
-      })
+      })  // REMOVED /api prefix
       
       return {
         success: true,
@@ -196,7 +195,7 @@ export const bookingsService = {
   // Get booking statistics (admin only)
   getStats: async () => {
     try {
-      const response = await api.get('/api/bookings/stats')
+      const response = await api.get('/bookings/stats')  // REMOVED /api prefix
       
       return {
         success: true,

@@ -2,7 +2,18 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { Plus, Edit, Trash2, Eye, Filter, Search, Home, CheckCircle, XCircle, Users } from 'lucide-react'
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  Filter,
+  Search,
+  Home,
+  CheckCircle,
+  XCircle,
+  Users
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import toast from 'react-hot-toast'
@@ -45,7 +56,8 @@ const ManageRooms = () => {
   })
 
   const toggleAvailability = useMutation({
-    mutationFn: ({ id, available }) => roomsService.update(id, { available: !available }),
+    mutationFn: ({ id, available }) =>
+      roomsService.update(id, { available: !available }),
     onSuccess: () => {
       toast.success('Room availability updated')
       queryClient.invalidateQueries(['admin-rooms'])
@@ -55,6 +67,7 @@ const ManageRooms = () => {
     }
   })
 
+  // (Your original columns array - kept as it is for compatibility)
   const columns = [
     {
       title: 'Room',
@@ -63,14 +76,20 @@ const ManageRooms = () => {
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
             <img
-              src={record.images?.[0]?.url || record.images?.[0] || 'https://images.unsplash.com/photo-1566665797739-1674de7a421a'}
+              src={
+                record.images?.[0]?.url ||
+                record.images?.[0] ||
+                'https://images.unsplash.com/photo-1566665797739-1674de7a421a'
+              }
               alt={name}
               className="w-full h-full object-cover"
             />
           </div>
           <div>
             <p className="font-medium text-gray-900 dark:text-white">{name}</p>
-            <p className="text-sm text-gray-700 dark:text-gray-300 capitalize">{record.type}</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 capitalize">
+              {record.type}
+            </p>
           </div>
         </div>
       )
@@ -90,7 +109,9 @@ const ManageRooms = () => {
       render: (capacity) => (
         <div className="flex items-center">
           <Users className="w-4 h-4 text-gray-500 dark:text-gray-400 mr-1" />
-          <span className="text-gray-800 dark:text-gray-200">{capacity || 2} Guests</span>
+          <span className="text-gray-800 dark:text-gray-200">
+            {capacity || 2} Guests
+          </span>
         </div>
       )
     },
@@ -103,15 +124,40 @@ const ManageRooms = () => {
         </span>
       )
     },
+
+    // ✅ ADDED: State Column
+    {
+      title: 'State',
+      dataIndex: 'state',
+      render: (state) => (
+        <span className="text-gray-800 dark:text-gray-200">
+          {state?.name || 'N/A'}
+        </span>
+      )
+    },
+
+    // ✅ ADDED: City Column
+    {
+      title: 'City',
+      dataIndex: 'city',
+      render: (city) => (
+        <span className="text-gray-800 dark:text-gray-200">
+          {city?.name || 'N/A'}
+        </span>
+      )
+    },
+
     {
       title: 'Status',
       dataIndex: 'available',
       render: (available) => (
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-          available
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
+        <span
+          className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+            available
+              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+          }`}
+        >
           {available ? (
             <>
               <CheckCircle className="w-3 h-3 mr-1" />
@@ -130,11 +176,13 @@ const ManageRooms = () => {
       title: 'Featured',
       dataIndex: 'featured',
       render: (featured) => (
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-          featured
-            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-            : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-        }`}>
+        <span
+          className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+            featured
+              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+              : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+          }`}
+        >
           {featured ? 'Yes' : 'No'}
         </span>
       )
@@ -163,11 +211,20 @@ const ManageRooms = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => toggleAvailability.mutate({ id, available: record.available })}
+            onClick={() =>
+              toggleAvailability.mutate({ id, available: record.available })
+            }
             className="p-1.5"
-            loading={toggleAvailability.variables?.id === id && toggleAvailability.isPending}
+            loading={
+              toggleAvailability.variables?.id === id &&
+              toggleAvailability.isPending
+            }
           >
-            {record.available ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+            {record.available ? (
+              <XCircle className="w-4 h-4" />
+            ) : (
+              <CheckCircle className="w-4 h-4" />
+            )}
           </Button>
           <Button
             variant="ghost"
@@ -182,8 +239,11 @@ const ManageRooms = () => {
     }
   ]
 
-  const filteredRooms = rooms.filter(room => {
-    if (filters.search && !room.name?.toLowerCase().includes(filters.search.toLowerCase())) {
+  const filteredRooms = rooms.filter((room) => {
+    if (
+      filters.search &&
+      !room.name?.toLowerCase().includes(filters.search.toLowerCase())
+    ) {
       return false
     }
     if (filters.type && room.type !== filters.type) {
@@ -239,7 +299,9 @@ const ManageRooms = () => {
             <Input
               placeholder="Search rooms..."
               value={filters.search}
-              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, search: e.target.value }))
+              }
               icon={<Search className="w-5 h-5" />}
             />
             <Select
@@ -252,7 +314,9 @@ const ManageRooms = () => {
                 { value: 'presidential', label: 'Presidential' }
               ]}
               value={filters.type}
-              onChange={(value) => setFilters(prev => ({ ...prev, type: value }))}
+              onChange={(value) =>
+                setFilters((prev) => ({ ...prev, type: value }))
+              }
             />
             <Select
               options={[
@@ -261,7 +325,9 @@ const ManageRooms = () => {
                 { value: 'false', label: 'Booked' }
               ]}
               value={filters.available}
-              onChange={(value) => setFilters(prev => ({ ...prev, available: value }))}
+              onChange={(value) =>
+                setFilters((prev) => ({ ...prev, available: value }))
+              }
             />
           </div>
 
@@ -270,68 +336,129 @@ const ManageRooms = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Room</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Price</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Capacity</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Size</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Status</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Featured</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Actions</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                    Room
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                    Price
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                    Capacity
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                    Size
+                  </th>
+
+                  {/* ✅ ADDED */}
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                    State
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                    City
+                  </th>
+
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                    Status
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                    Featured
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                    Actions
+                  </th>
                 </tr>
               </thead>
+
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan="7" className="py-8 text-center text-gray-600 dark:text-gray-400">
+                    <td
+                      colSpan="9"
+                      className="py-8 text-center text-gray-600 dark:text-gray-400"
+                    >
                       Loading rooms...
                     </td>
                   </tr>
                 ) : filteredRooms.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="py-8 text-center text-gray-600 dark:text-gray-400">
+                    <td
+                      colSpan="9"
+                      className="py-8 text-center text-gray-600 dark:text-gray-400"
+                    >
                       No rooms found
                     </td>
                   </tr>
                 ) : (
                   filteredRooms.map((room) => (
-                    <tr key={room._id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <tr
+                      key={room._id}
+                      className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    >
                       <td className="py-3 px-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                             <img
-                              src={room.images?.[0]?.url || room.images?.[0] || 'https://images.unsplash.com/photo-1566665797739-1674de7a421a'}
+                              src={
+                                room.images?.[0]?.url ||
+                                room.images?.[0] ||
+                                'https://images.unsplash.com/photo-1566665797739-1674de7a421a'
+                              }
                               alt={room.name}
                               className="w-full h-full object-cover"
                             />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900 dark:text-white">{room.name}</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 capitalize">{room.type}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {room.name}
+                            </p>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 capitalize">
+                              {room.type}
+                            </p>
                           </div>
                         </div>
                       </td>
+
                       <td className="py-3 px-4">
                         <span className="font-bold text-primary dark:text-primary-light">
                           {formatCurrency(room.pricePerNight || 0)}
                         </span>
                       </td>
+
                       <td className="py-3 px-4">
                         <div className="flex items-center">
                           <Users className="w-4 h-4 text-gray-500 dark:text-gray-400 mr-1" />
-                          <span className="text-gray-800 dark:text-gray-200">{room.capacity || 2} Guests</span>
+                          <span className="text-gray-800 dark:text-gray-200">
+                            {room.capacity || 2} Guests
+                          </span>
                         </div>
                       </td>
+
                       <td className="py-3 px-4">
                         <span className="text-gray-800 dark:text-gray-200">
                           {room.size ? `${room.size} sqft` : 'N/A'}
                         </span>
                       </td>
+
+                      {/* ✅ ADDED */}
                       <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-                          room.available
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        }`}>
+                        <span className="text-gray-800 dark:text-gray-200">
+                          {room.state?.name || 'N/A'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-gray-800 dark:text-gray-200">
+                          {room.city?.name || 'N/A'}
+                        </span>
+                      </td>
+
+                      <td className="py-3 px-4">
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+                            room.available
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          }`}
+                        >
                           {room.available ? (
                             <>
                               <CheckCircle className="w-3 h-3 mr-1" />
@@ -345,15 +472,19 @@ const ManageRooms = () => {
                           )}
                         </span>
                       </td>
+
                       <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-                          room.featured
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+                            room.featured
+                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                          }`}
+                        >
                           {room.featured ? 'Yes' : 'No'}
                         </span>
                       </td>
+
                       <td className="py-3 px-4">
                         <div className="flex items-center space-x-2">
                           <Button
@@ -367,7 +498,9 @@ const ManageRooms = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => navigate(`/admin/rooms/edit/${room._id}`)}
+                            onClick={() =>
+                              navigate(`/admin/rooms/edit/${room._id}`)
+                            }
                             className="p-1.5"
                           >
                             <Edit className="w-4 h-4" />
@@ -375,11 +508,23 @@ const ManageRooms = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => toggleAvailability.mutate({ id: room._id, available: room.available })}
+                            onClick={() =>
+                              toggleAvailability.mutate({
+                                id: room._id,
+                                available: room.available
+                              })
+                            }
                             className="p-1.5"
-                            loading={toggleAvailability.variables?.id === room._id && toggleAvailability.isPending}
+                            loading={
+                              toggleAvailability.variables?.id === room._id &&
+                              toggleAvailability.isPending
+                            }
                           >
-                            {room.available ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                            {room.available ? (
+                              <XCircle className="w-4 h-4" />
+                            ) : (
+                              <CheckCircle className="w-4 h-4" />
+                            )}
                           </Button>
                           <Button
                             variant="ghost"
@@ -408,7 +553,9 @@ const ManageRooms = () => {
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
               {rooms.length}
             </div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">Total Rooms</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">
+              Total Rooms
+            </div>
           </Card>
 
           <Card className="p-6 text-center bg-white dark:bg-gray-800">
@@ -416,9 +563,11 @@ const ManageRooms = () => {
               <CheckCircle className="w-6 h-6" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {rooms.filter(r => r.available).length}
+              {rooms.filter((r) => r.available).length}
             </div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">Available Now</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">
+              Available Now
+            </div>
           </Card>
 
           <Card className="p-6 text-center bg-white dark:bg-gray-800">
@@ -426,9 +575,11 @@ const ManageRooms = () => {
               <Home className="w-6 h-6" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {rooms.filter(r => r.featured).length}
+              {rooms.filter((r) => r.featured).length}
             </div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">Featured</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">
+              Featured
+            </div>
           </Card>
 
           <Card className="p-6 text-center bg-white dark:bg-gray-800">
@@ -436,9 +587,16 @@ const ManageRooms = () => {
               <Home className="w-6 h-6" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {rooms.length > 0 ? formatCurrency(rooms.reduce((sum, r) => sum + (r.pricePerNight || 0), 0) / rooms.length) : '$0'}
+              {rooms.length > 0
+                ? formatCurrency(
+                    rooms.reduce((sum, r) => sum + (r.pricePerNight || 0), 0) /
+                      rooms.length
+                  )
+                : '$0'}
             </div>
-            <div className="text-sm text-gray-700 dark:text-gray-300">Avg. Price</div>
+            <div className="text-sm text-gray-700 dark:text-gray-300">
+              Avg. Price
+            </div>
           </Card>
         </div>
 

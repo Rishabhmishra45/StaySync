@@ -6,17 +6,55 @@ import {
   Search, Star, Users, Wifi, Coffee, Car,
   Shield, Utensils, Tv, Wind, ChevronRight,
   ArrowRight, Check, Award, Sparkles, Heart,
-  MapPin, Calendar, ChevronLeft, ChevronRight as RightIcon
+  MapPin, Calendar, ChevronLeft, ChevronRight as RightIcon,
+  Home
 } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
+import { Link } from 'react-router-dom'
 import { roomsService } from '../../services/api/rooms'
 import SearchWidget from '../../components/shared/SearchWidget'
 import RoomCard from '../../components/shared/RoomCard'
 import Button from '../../components/ui/Button'
 
+/* ✅ StateCard Component (Return se bahar hona chahiye) */
+const StateCard = ({ name, description, hotelsCount, image, link }) => (
+  <motion.div
+    whileHover={{ y: -5 }}
+    className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300"
+  >
+    <Link to={link}>
+      <div className="relative">
+        <img
+          src={image}
+          alt={name}
+          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+        <h3 className="text-xl font-bold mb-1">{name}</h3>
+        <p className="text-sm opacity-90 mb-2">{description}</p>
+        <div className="flex items-center text-sm">
+          <Home className="w-4 h-4 mr-1" />
+          <span>{hotelsCount}</span>
+        </div>
+      </div>
+
+      <div className="absolute top-4 right-4">
+        <Button
+          size="sm"
+          className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-0"
+        >
+          Explore
+        </Button>
+      </div>
+    </Link>
+  </motion.div>
+)
+
 const HomePage = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [searchParams, setSearchParams] = useState({})
 
   const { data: response, isLoading } = useQuery({
     queryKey: ['featured-rooms'],
@@ -28,7 +66,6 @@ const HomePage = () => {
     "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2070&q=80",
     "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=2070&q=80",
     "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=2070&q=80",
-    // "https://images.unsplash.com/photo-1564501049418-3c27787d01e8?auto=format&fit=crop&w=2070&q=80"
     "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80"
   ]
 
@@ -54,9 +91,9 @@ const HomePage = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length)
-    }, 5000) // Change image every 5 seconds
+    }, 5000)
     return () => clearInterval(interval)
-  }, [])
+  }, [heroImages.length])
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroImages.length)
@@ -89,7 +126,6 @@ const HomePage = () => {
                 className="w-full h-full object-cover"
                 loading="eager"
               />
-              {/* Dark overlay for better text visibility */}
               <div className="absolute inset-0 bg-black/50 dark:bg-black/60"></div>
             </div>
           ))}
@@ -224,7 +260,6 @@ const HomePage = () => {
                 </div>
                 <SearchWidget />
 
-                {/* Trust Badge */}
                 <div className="mt-6 pt-6 border-t border-white/20">
                   <div className="flex flex-wrap items-center justify-center gap-4">
                     <div className="flex items-center space-x-2">
@@ -245,27 +280,11 @@ const HomePage = () => {
             </motion.div>
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute bottom-8 right-8 z-20"
-        >
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <motion.div
-              animate={{ y: [0, 12, 0] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              className="w-1 h-3 bg-white rounded-full mt-2"
-            />
-          </div>
-        </motion.div>
       </section>
 
       {/* Featured Rooms */}
       <section className="py-16 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary dark:text-primary-light text-sm font-medium mb-4">
               <Star className="w-4 h-4 mr-2" />
@@ -279,7 +298,6 @@ const HomePage = () => {
             </p>
           </div>
 
-          {/* Rooms Grid */}
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4].map((i) => (
@@ -313,7 +331,6 @@ const HomePage = () => {
             </div>
           )}
 
-          {/* View All Button */}
           {rooms.length > 0 && (
             <div className="text-center mt-12">
               <Button
@@ -330,10 +347,98 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* ✅ STATES SECTION (Featured Rooms ke baad added) */}
+      <section className="py-16 bg-white dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary dark:text-primary-light text-sm font-medium mb-4">
+              <MapPin className="w-4 h-4 mr-2" />
+              Explore By State
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Discover Hotels Across <span className="text-primary dark:text-primary-light">India</span>
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Find the perfect stay in your favorite Indian state
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <StateCard
+              name="Maharashtra"
+              description="The City of Dreams"
+              hotelsCount="150+ Hotels"
+              image="https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=800&q=80"
+              link="/states/maharashtra"
+            />
+            <StateCard
+              name="Goa"
+              description="Beach Paradise"
+              hotelsCount="200+ Hotels"
+              image="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80"
+              link="/states/goa"
+            />
+            <StateCard
+              name="Himachal Pradesh"
+              description="Mountain Retreat"
+              hotelsCount="120+ Hotels"
+              image="https://images.unsplash.com/photo-1599391408303-4cb8b47b8e7c?auto=format&fit=crop&w=800&q=80"
+              link="/states/himachal-pradesh"
+            />
+            <StateCard
+              name="Rajasthan"
+              description="The Pink City"
+              hotelsCount="180+ Hotels"
+              image="https://images.unsplash.com/photo-1524307875964-4c93d5c97229?auto=format&fit=crop&w=800&q=80"
+              link="/states/rajasthan"
+            />
+            <StateCard
+              name="Kerala"
+              description="God's Own Country"
+              hotelsCount="160+ Hotels"
+              image="https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=800&q=80"
+              link="/states/kerala"
+            />
+            <StateCard
+              name="Tamil Nadu"
+              description="Temple State"
+              hotelsCount="140+ Hotels"
+              image="https://images.unsplash.com/photo-1565950637287-040c2ac78dc9?auto=format&fit=crop&w=800&q=80"
+              link="/states/tamil-nadu"
+            />
+            <StateCard
+              name="Uttar Pradesh"
+              description="Historical Land"
+              hotelsCount="190+ Hotels"
+              image="https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80"
+              link="/states/uttar-pradesh"
+            />
+            <StateCard
+              name="Gujarat"
+              description="Business Hub"
+              hotelsCount="130+ Hotels"
+              image="https://images.unsplash.com/photo-1524307875964-4c93d5c97229?auto=format&fit=crop&w=800&q=80"
+              link="/states/gujarat"
+            />
+          </div>
+
+          <div className="text-center mt-12">
+            <Button
+              as="a"
+              href="/states"
+              variant="outline"
+              className="group border-primary dark:border-primary-light text-primary dark:text-primary-light hover:bg-primary dark:hover:bg-primary-light hover:text-white px-8 py-3 rounded-lg"
+            >
+              View All 28 States
+              <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Amenities */}
       <section className="py-16 bg-white dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-secondary/10 text-secondary dark:text-secondary-light text-sm font-medium mb-4">
               <Sparkles className="w-4 h-4 mr-2" />
@@ -347,7 +452,6 @@ const HomePage = () => {
             </p>
           </div>
 
-          {/* Amenities Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {amenities.map((amenity, index) => (
               <motion.div
@@ -370,67 +474,6 @@ const HomePage = () => {
               </motion.div>
             ))}
           </div>
-
-          {/* CTA Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mt-16"
-          >
-            <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 dark:from-primary/20 dark:via-secondary/20 dark:to-primary/20 rounded-2xl p-8 md:p-12">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900 dark:text-white">
-                    Ready for Your Dream Vacation?
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Book your stay today and experience luxury like never before.
-                    Enjoy premium amenities, exceptional service, and create unforgettable memories.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Button
-                      as="a"
-                      href="/rooms"
-                      className="bg-gradient-to-r from-primary to-secondary dark:from-primary-light dark:to-secondary-light hover:from-primary/90 hover:to-secondary/90 text-white px-6 py-3"
-                    >
-                      Book Your Stay
-                    </Button>
-                    <Button
-                      as="a"
-                      href="/contact"
-                      variant="outline"
-                      className="border-primary dark:border-primary-light text-primary dark:text-primary-light hover:bg-primary dark:hover:bg-primary-light hover:text-white px-6 py-3"
-                    >
-                      Contact Us
-                    </Button>
-                  </div>
-                </div>
-                <div className="relative">
-                  <div className="bg-gradient-to-br from-primary/20 to-secondary/20 dark:from-primary/30 dark:to-secondary/30 rounded-xl p-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-primary dark:text-primary-light mb-1">98%</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-300">Guest Satisfaction</div>
-                      </div>
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-secondary dark:text-secondary-light mb-1">24/7</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-300">Customer Support</div>
-                      </div>
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-primary dark:text-primary-light mb-1">5★</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-300">Luxury Rating</div>
-                      </div>
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-secondary dark:text-secondary-light mb-1">100+</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-300">Happy Guests</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </section>
     </>

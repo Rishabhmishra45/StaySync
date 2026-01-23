@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Eye, Edit, Trash2, Calendar, User, Home, CheckCircle, XCircle, Clock } from 'lucide-react'
@@ -21,12 +21,32 @@ const BookingTable = ({ isAdmin = false, className = '' }) => {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showStatusDialog, setShowStatusDialog] = useState(false)
 
-  const { data: bookings, isLoading, refetch } = useQuery({
+  const { data: bookingsResponse, isLoading, refetch } = useQuery({
     queryKey: ['bookings', isAdmin, filters],
     queryFn: () => isAdmin 
       ? bookingsService.getAll(filters)
       : bookingsService.getMyBookings()
   })
+
+  // Extract bookings from response
+  const bookings = useMemo(() => {
+    if (!bookingsResponse) return []
+    
+    if (Array.isArray(bookingsResponse)) {
+      return bookingsResponse
+    }
+    
+    if (bookingsResponse.data && Array.isArray(bookingsResponse.data)) {
+      return bookingsResponse.data
+    }
+    
+    if (bookingsResponse.success && Array.isArray(bookingsResponse.data)) {
+      return bookingsResponse.data
+    }
+    
+    console.warn('Unexpected bookings response format:', bookingsResponse)
+    return []
+  }, [bookingsResponse])
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }) => bookingsService.updateStatus(id, status),
@@ -76,7 +96,7 @@ const BookingTable = ({ isAdmin = false, className = '' }) => {
       title: 'Booking ID',
       dataIndex: '_id',
       render: (id) => (
-        <span className="font-mono text-sm">#{id.slice(-8)}</span>
+        <span className="font-mono text-sm">#{id ? id.slice(-8) : 'N/A'}</span>
       )
     },
     {
@@ -96,7 +116,7 @@ const BookingTable = ({ isAdmin = false, className = '' }) => {
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-gray-500" />
           <span className="text-sm">
-            {formatDate(checkIn)} - {formatDate(record.checkOut)}
+            {checkIn ? formatDate(checkIn) : 'N/A'} - {record.checkOut ? formatDate(record.checkOut) : 'N/A'}
           </span>
         </div>
       )
@@ -114,12 +134,12 @@ const BookingTable = ({ isAdmin = false, className = '' }) => {
     {
       title: 'Amount',
       dataIndex: 'totalAmount',
-      render: (amount) => formatCurrency(amount)
+      render: (amount) => amount ? formatCurrency(amount) : '$0'
     },
     {
       title: 'Status',
       dataIndex: 'status',
-      render: getStatusBadge
+      render: (status) => status ? getStatusBadge(status) : <Badge>Unknown</Badge>
     },
     {
       title: 'Actions',
@@ -167,18 +187,20 @@ const BookingTable = ({ isAdmin = false, className = '' }) => {
     }
   ]
 
-  const filteredData = bookings?.filter(booking => {
-    if (filters.status && booking.status !== filters.status) return false
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase()
-      return (
-        booking._id.toLowerCase().includes(searchLower) ||
-        booking.room?.name.toLowerCase().includes(searchLower) ||
-        booking.user?.name.toLowerCase().includes(searchLower)
-      )
-    }
-    return true
-  }) || []
+  const filteredData = useMemo(() => {
+    return bookings.filter(booking => {
+      if (filters.status && booking.status !== filters.status) return false
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase()
+        return (
+          (booking._id && booking._id.toLowerCase().includes(searchLower)) ||
+          (booking.room?.name && booking.room.name.toLowerCase().includes(searchLower)) ||
+          (booking.user?.name && booking.user.name.toLowerCase().includes(searchLower))
+        )
+      }
+      return true
+    })
+  }, [bookings, filters])
 
   return (
     <div className={`space-y-6 ${className}`}>

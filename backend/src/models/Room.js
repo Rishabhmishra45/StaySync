@@ -8,47 +8,56 @@ const roomSchema = new mongoose.Schema(
       trim: true,
       maxlength: [100, 'Room name cannot exceed 100 characters'],
     },
+
     description: {
       type: String,
       required: [true, 'Please provide room description'],
       minlength: [10, 'Description must be at least 10 characters'],
       maxlength: [2000, 'Description cannot exceed 2000 characters'],
     },
+
     type: {
       type: String,
       required: [true, 'Please specify room type'],
       enum: ['single', 'double', 'suite', 'deluxe', 'presidential'],
     },
+
     pricePerNight: {
       type: Number,
       required: [true, 'Please provide price per night'],
       min: [0, 'Price cannot be negative'],
     },
+
     capacity: {
       type: Number,
       required: [true, 'Please specify room capacity'],
       min: [1, 'Capacity must be at least 1'],
       max: [10, 'Capacity cannot exceed 10'],
     },
+
     size: {
       type: Number,
       required: [true, 'Please provide room size'],
       min: [1, 'Size must be at least 1 sqft'],
     },
+
     beds: {
       type: String,
       required: [true, 'Please specify beds'],
     },
+
     bathrooms: {
       type: Number,
       required: [true, 'Please specify number of bathrooms'],
       min: [1, 'Must have at least 1 bathroom'],
     },
+
     floor: {
       type: Number,
       required: [true, 'Please specify floor'],
       min: [1, 'Floor must be at least 1'],
     },
+
     images: [
       {
         url: String,
@@ -56,6 +65,7 @@ const roomSchema = new mongoose.Schema(
         isPrimary: { type: Boolean, default: false },
       },
     ],
+
     amenities: [
       {
         type: String,
@@ -78,32 +88,39 @@ const roomSchema = new mongoose.Schema(
         ],
       },
     ],
+
     featured: {
       type: Boolean,
       default: false,
     },
+
     available: {
       type: Boolean,
       default: true,
     },
+
     parkingIncluded: {
       type: Boolean,
       default: false,
     },
+
     breakfastIncluded: {
       type: Boolean,
       default: false,
     },
+
     rating: {
       type: Number,
       default: 0,
       min: [0, 'Rating must be at least 0'],
       max: [5, 'Rating cannot exceed 5'],
     },
+
     reviewsCount: {
       type: Number,
       default: 0,
     },
+
     bookedDates: [
       {
         from: Date,
@@ -114,6 +131,39 @@ const roomSchema = new mongoose.Schema(
         },
       },
     ],
+
+    // ✅ NEW FIELDS ADDED (As per comments file)
+    state: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'State',
+      required: [true, 'Please select a state'],
+    },
+
+    city: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'City',
+      required: [true, 'Please select a city'],
+    },
+
+    location: {
+      address: {
+        type: String,
+        trim: true,
+      },
+      landmark: {
+        type: String,
+        trim: true,
+      },
+      pincode: {
+        type: String,
+        trim: true,
+      },
+      coordinates: {
+        lat: { type: Number },
+        lng: { type: Number },
+      },
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -140,6 +190,11 @@ roomSchema.index({ available: 1 });
 roomSchema.index({ featured: 1 });
 roomSchema.index({ rating: -1 });
 roomSchema.index({ 'bookedDates.from': 1, 'bookedDates.to': 1 });
+
+// ✅ NEW INDEXES ADDED
+roomSchema.index({ state: 1 });
+roomSchema.index({ city: 1 });
+roomSchema.index({ 'location.coordinates': '2dsphere' });
 
 // Method to check if room is available for dates
 roomSchema.methods.isAvailable = function (checkIn, checkOut) {
@@ -186,6 +241,9 @@ roomSchema.methods.getSummary = function () {
     reviewsCount: this.reviewsCount,
     available: this.available,
     featured: this.featured,
+    state: this.state,
+    city: this.city,
+    location: this.location,
   };
 };
 

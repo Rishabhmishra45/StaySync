@@ -1,4 +1,3 @@
-// src/app/providers/AuthProvider.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { authService } from '../../services/api/auth'
 
@@ -20,12 +19,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     initializeAuth()
-    checkBackendStatus()
+    // Remove or modify checkBackendStatus as it might be causing issues
+    // checkBackendStatus()
   }, [])
 
   const checkBackendStatus = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/health')
+      const response = await fetch('http://localhost:5000/api/health', {
+        signal: AbortSignal.timeout(3000) // 3 second timeout
+      })
       if (response.ok) {
         setBackendStatus('online')
       } else {
@@ -33,7 +35,7 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       setBackendStatus('offline')
-      console.warn('Backend is offline')
+      console.warn('Backend is offline:', error.message)
     }
   }
 
@@ -41,11 +43,36 @@ export const AuthProvider = ({ children }) => {
     const storedUser = authService.getStoredUser()
     const token = authService.getToken()
     
+    console.log('Initializing auth:', { storedUser, token })
+    
     if (token && storedUser) {
       setUser(storedUser)
+      // Try to validate token with backend
+      validateToken(token)
+    } else {
+      setLoading(false)
     }
-    
-    setLoading(false)
+  }
+
+  const validateToken = async (token) => {
+    try {
+      // Try to get current user from backend
+      const result = await authService.getCurrentUser()
+      if (result.success) {
+        setUser(result.user)
+      } else {
+        // Token might be invalid, clear storage
+        authService.clearStorage()
+        setUser(null)
+      }
+    } catch (error) {
+      console.error('Token validation failed:', error)
+      // Clear storage on error
+      authService.clearStorage()
+      setUser(null)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const login = async (credentials) => {
@@ -109,6 +136,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Logout error:', error)
     } finally {
       setUser(null)
+      authService.clearStorage()
     }
   }
 

@@ -1,4 +1,3 @@
-// src/app/layouts/AdminLayout.jsx
 import React, { useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -68,7 +67,7 @@ const AdminLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div className="min-h-screen bg-background transition-colors duration-200">
       {/* Sidebar for mobile */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -79,7 +78,7 @@ const AdminLayout = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSidebarOpen(false)}
-              className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+              className="fixed inset-0 z-40 bg-black/50 md:hidden"
             />
 
             {/* Sidebar */}
@@ -87,15 +86,15 @@ const AdminLayout = () => {
               initial={{ x: -300 }}
               animate={{ x: 0 }}
               exit={{ x: -300 }}
-              className="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl md:hidden"
+              className="fixed inset-y-0 left-0 z-50 w-64 bg-card shadow-xl md:hidden"
             >
               <div className="flex flex-col h-full">
                 {/* Sidebar header */}
-                <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between h-16 px-4 border-b">
                   <span className="text-xl font-bold text-primary">StaySync Admin</span>
                   <button
                     onClick={() => setSidebarOpen(false)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="p-2 rounded-lg hover:bg-accent"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -110,10 +109,11 @@ const AdminLayout = () => {
                         key={item.name}
                         to={item.path}
                         onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
-                            ? 'bg-primary text-white'
-                            : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                          }`}
+                        className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${
+                          isActive
+                            ? 'bg-primary text-primary-foreground'
+                            : 'hover:bg-accent text-foreground'
+                        }`}
                       >
                         {item.icon}
                         <span>{item.name}</span>
@@ -128,27 +128,27 @@ const AdminLayout = () => {
       </AnimatePresence>
 
       {/* Static sidebar for desktop */}
-      <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+      <aside className="hidden md:flex md:flex-col md:fixed md:inset-y-0 md:w-64 bg-card border-r">
         <div className="flex flex-col flex-1">
           {/* Sidebar header */}
-          <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center h-16 px-4 border-b">
             <Link to="/admin" className="flex items-center space-x-2">
               <Shield className="w-8 h-8 text-primary" />
-              <span className="text-xl font-bold text-gray-900 dark:text-white">StaySync Admin</span>
+              <span className="text-xl font-bold text-foreground">StaySync Admin</span>
             </Link>
           </div>
 
           {/* User info */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold">
                 {user?.name?.charAt(0) || 'A'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                <p className="text-sm font-medium text-foreground truncate">
                   {user?.name || 'Admin User'}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <p className="text-xs text-muted-foreground truncate">
                   {user?.email || 'admin@staysync.com'}
                 </p>
               </div>
@@ -163,10 +163,11 @@ const AdminLayout = () => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
+                  className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors ${
+                    isActive
                       ? 'bg-primary/10 text-primary border-l-4 border-primary'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                    }`}
+                      : 'hover:bg-accent text-foreground'
+                  }`}
                 >
                   {item.icon}
                   <span>{item.name}</span>
@@ -176,10 +177,10 @@ const AdminLayout = () => {
           </nav>
 
           {/* Sidebar footer */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-t">
             <button
               onClick={toggleTheme}
-              className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-accent text-foreground"
             >
               <div className="flex items-center space-x-3">
                 {theme === 'dark' ? (
@@ -192,7 +193,7 @@ const AdminLayout = () => {
             </button>
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-3 w-full px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 mt-2"
+              className="flex items-center space-x-3 w-full px-3 py-2 rounded-lg hover:bg-destructive/10 text-destructive mt-2"
             >
               <LogOut className="w-5 h-5" />
               <span>Logout</span>
@@ -204,34 +205,34 @@ const AdminLayout = () => {
       {/* Main content */}
       <div className="md:pl-64">
         {/* Top header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
+        <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               {/* Left side */}
               <div className="flex items-center">
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 md:hidden"
+                  className="p-2 rounded-lg hover:bg-accent md:hidden"
                 >
-                  <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <Menu className="w-5 h-5 text-foreground" />
                 </button>
 
                 {/* Breadcrumbs */}
                 <div className="hidden md:flex items-center space-x-2 ml-4">
-                  <Link to="/admin" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                  <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
                     Admin
                   </Link>
                   {getBreadcrumbs().map((crumb, index) => (
                     <div key={crumb.name} className="flex items-center space-x-2">
-                      <span className="text-gray-300 dark:text-gray-600">/</span>
+                      <span className="text-muted-foreground">/</span>
                       {index === getBreadcrumbs().length - 1 ? (
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        <span className="text-sm font-medium text-foreground">
                           {crumb.name}
                         </span>
                       ) : (
                         <Link
                           to={crumb.url}
-                          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                          className="text-sm text-muted-foreground hover:text-foreground"
                         >
                           {crumb.name}
                         </Link>
@@ -246,11 +247,11 @@ const AdminLayout = () => {
                 {/* Search */}
                 <div className="hidden lg:block relative">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
                       type="text"
                       placeholder="Search..."
-                      className="pl-10 pr-4 py-2 w-64 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="pl-10 pr-4 py-2 w-64 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -258,12 +259,12 @@ const AdminLayout = () => {
                 {/* Theme toggle */}
                 <button
                   onClick={toggleTheme}
-                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="p-2 rounded-lg hover:bg-accent"
                 >
                   {theme === 'dark' ? (
-                    <Sun className="w-5 h-5 text-yellow-500" />
+                    <Sun className="w-5 h-5 text-foreground" />
                   ) : (
-                    <Moon className="w-5 h-5 text-gray-700" />
+                    <Moon className="w-5 h-5 text-foreground" />
                   )}
                 </button>
 
@@ -271,11 +272,11 @@ const AdminLayout = () => {
                 <div className="relative">
                   <button
                     onClick={() => setNotificationsOpen(!notificationsOpen)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 relative"
+                    className="p-2 rounded-lg hover:bg-accent relative"
                   >
-                    <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <Bell className="w-5 h-5 text-foreground" />
                     {notifications.filter(n => n.unread).length > 0 && (
-                      <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                      <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
                     )}
                   </button>
 
@@ -286,11 +287,11 @@ const AdminLayout = () => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+                        className="absolute right-0 mt-2 w-80 bg-card rounded-lg shadow-lg border z-50"
                       >
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                          <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
-                          <span className="text-xs text-gray-500">
+                        <div className="p-4 border-b">
+                          <h3 className="font-semibold text-foreground">Notifications</h3>
+                          <span className="text-xs text-muted-foreground">
                             {notifications.filter(n => n.unread).length} unread
                           </span>
                         </div>
@@ -298,17 +299,18 @@ const AdminLayout = () => {
                           {notifications.map((notification) => (
                             <div
                               key={notification.id}
-                              className={`p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${notification.unread ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                                }`}
+                              className={`p-4 border-b hover:bg-accent cursor-pointer ${
+                                notification.unread ? 'bg-primary/10' : ''
+                              }`}
                             >
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              <p className="text-sm font-medium text-foreground">
                                 {notification.title}
                               </p>
-                              <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+                              <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
                             </div>
                           ))}
                         </div>
-                        <div className="p-2 border-t border-gray-200 dark:border-gray-700">
+                        <div className="p-2 border-t">
                           <button className="w-full text-sm text-primary hover:underline text-center py-2">
                             View all notifications
                           </button>
@@ -322,18 +324,18 @@ const AdminLayout = () => {
                 <div className="relative">
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-accent"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold">
                       {user?.name?.charAt(0) || 'A'}
                     </div>
                     <div className="hidden md:block text-left">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-sm font-medium text-foreground">
                         {user?.name || 'Admin'}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+                      <p className="text-xs text-muted-foreground">Admin</p>
                     </div>
-                    <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </button>
 
                   {/* User dropdown */}
@@ -343,30 +345,30 @@ const AdminLayout = () => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+                        className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border z-50"
                       >
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                          <p className="font-medium text-gray-900 dark:text-white">{user?.name}</p>
-                          <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+                        <div className="p-4 border-b">
+                          <p className="font-medium text-foreground">{user?.name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
                         </div>
                         <div className="p-2">
                           <Link
                             to="/admin/profile"
-                            className="block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                            className="block px-3 py-2 rounded hover:bg-accent text-foreground"
                             onClick={() => setUserMenuOpen(false)}
                           >
                             Profile Settings
                           </Link>
                           <Link
                             to="/admin/settings"
-                            className="block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                            className="block px-3 py-2 rounded hover:bg-accent text-foreground"
                             onClick={() => setUserMenuOpen(false)}
                           >
                             Admin Settings
                           </Link>
                           <button
                             onClick={handleLogout}
-                            className="w-full text-left px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 mt-2"
+                            className="w-full text-left px-3 py-2 rounded hover:bg-destructive/10 text-destructive mt-2"
                           >
                             Sign out
                           </button>
@@ -394,24 +396,24 @@ const AdminLayout = () => {
         </main>
 
         {/* Quick stats footer */}
-        <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8">
+        <footer className="bg-card border-t mt-8">
           <div className="px-4 sm:px-6 lg:px-8 py-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
                 <p className="text-2xl font-bold text-primary">24/7</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Support</p>
+                <p className="text-sm text-muted-foreground">Support</p>
               </div>
               <div>
                 <p className="text-2xl font-bold text-green-500">99.9%</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Uptime</p>
+                <p className="text-sm text-muted-foreground">Uptime</p>
               </div>
               <div>
                 <p className="text-2xl font-bold text-blue-500">1.2s</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Response</p>
+                <p className="text-sm text-muted-foreground">Avg. Response</p>
               </div>
               <div>
                 <p className="text-2xl font-bold text-purple-500">256</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Active Users</p>
+                <p className="text-sm text-muted-foreground">Active Users</p>
               </div>
             </div>
           </div>

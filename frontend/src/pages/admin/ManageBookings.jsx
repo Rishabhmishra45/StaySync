@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Filter, Download, Calendar, Users, TrendingUp, Search } from 'lucide-react'
@@ -20,33 +20,57 @@ const ManageBookings = () => {
     sort: 'newest'
   })
 
-  const { data: bookings, isLoading } = useQuery({
+  const { data: bookingsResponse, isLoading } = useQuery({
     queryKey: ['admin-bookings', filters],
     queryFn: () => bookingsService.getAll(filters)
   })
 
+  // Extract bookings array from response
+  const bookings = useMemo(() => {
+    if (!bookingsResponse) return []
+    
+    // Case 1: Response is already an array
+    if (Array.isArray(bookingsResponse)) {
+      return bookingsResponse
+    }
+    
+    // Case 2: Response has data property
+    if (bookingsResponse.data && Array.isArray(bookingsResponse.data)) {
+      return bookingsResponse.data
+    }
+    
+    // Case 3: Response is object with success property
+    if (bookingsResponse.success && bookingsResponse.data && Array.isArray(bookingsResponse.data)) {
+      return bookingsResponse.data
+    }
+    
+    // Case 4: Unexpected format, return empty array
+    console.warn('Unexpected bookings response format:', bookingsResponse)
+    return []
+  }, [bookingsResponse])
+
   const stats = [
     {
       title: 'Total Bookings',
-      value: bookings?.length || 0,
+      value: bookings.length || 0,
       icon: <Calendar className="w-6 h-6" />,
       color: 'from-blue-500 to-blue-600'
     },
     {
       title: 'Pending Approval',
-      value: bookings?.filter(b => b.status === 'pending')?.length || 0,
+      value: bookings.filter(b => b.status === 'pending').length || 0,
       icon: <Calendar className="w-6 h-6" />,
       color: 'from-yellow-500 to-yellow-600'
     },
     {
       title: 'Active Guests',
-      value: bookings?.filter(b => b.status === 'checked_in')?.length || 0,
+      value: bookings.filter(b => b.status === 'checked_in').length || 0,
       icon: <Users className="w-6 h-6" />,
       color: 'from-green-500 to-green-600'
     },
     {
       title: 'Revenue Today',
-      value: formatCurrency(bookings?.reduce((sum, b) => sum + (b.totalAmount || 0), 0) || 0),
+      value: formatCurrency(bookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0) || 0),
       icon: <TrendingUp className="w-6 h-6" />,
       color: 'from-purple-500 to-purple-600'
     }
@@ -62,10 +86,10 @@ const ManageBookings = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-3xl font-bold text-foreground">
               Manage Bookings
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-muted-foreground mt-2">
               View and manage all hotel reservations
             </p>
           </div>
@@ -89,21 +113,18 @@ const ManageBookings = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              <Card className="p-6 overflow-hidden group">
-                <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}>
-                      {stat.icon}
-                    </div>
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}>
+                    {stat.icon}
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stat.value}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mt-1">
-                    {stat.title}
-                  </p>
                 </div>
+                <h3 className="text-2xl font-bold text-foreground">
+                  {stat.value}
+                </h3>
+                <p className="text-muted-foreground mt-1">
+                  {stat.title}
+                </p>
               </Card>
             </motion.div>
           ))}
@@ -112,7 +133,7 @@ const ManageBookings = () => {
         {/* Filters */}
         <Card className="p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-semibold text-foreground">
               All Bookings
             </h2>
             <div className="flex items-center space-x-3">
@@ -162,18 +183,18 @@ const ManageBookings = () => {
         {/* Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="p-6">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 className="font-semibold text-foreground mb-4">
               Booking Status Distribution
             </h3>
             <div className="space-y-3">
               {['confirmed', 'pending', 'checked_in', 'checked_out', 'cancelled'].map((status) => {
-                const count = bookings?.filter(b => b.status === status)?.length || 0
-                const percentage = bookings?.length ? (count / bookings.length) * 100 : 0
+                const count = bookings.filter(b => b.status === status).length || 0
+                const percentage = bookings.length ? (count / bookings.length) * 100 : 0
                 return (
                   <div key={status} className="flex items-center justify-between">
                     <span className="text-sm capitalize">{status.replace('_', ' ')}</span>
                     <div className="flex items-center space-x-4">
-                      <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
                           style={{ width: `${percentage}%` }}
@@ -190,7 +211,7 @@ const ManageBookings = () => {
           </Card>
 
           <Card className="p-6">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 className="font-semibold text-foreground mb-4">
               Quick Actions
             </h3>
             <div className="space-y-3">
@@ -210,20 +231,20 @@ const ManageBookings = () => {
           </Card>
 
           <Card className="p-6">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+            <h3 className="font-semibold text-foreground mb-4">
               Today's Check-ins/outs
             </h3>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Check-ins Today</p>
+                <p className="text-sm text-muted-foreground">Check-ins Today</p>
                 <p className="text-2xl font-bold text-primary">12</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Check-outs Today</p>
+                <p className="text-sm text-muted-foreground">Check-outs Today</p>
                 <p className="text-2xl font-bold text-secondary">8</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Expected Arrivals</p>
+                <p className="text-sm text-muted-foreground">Expected Arrivals</p>
                 <p className="text-2xl font-bold text-green-500">15</p>
               </div>
             </div>

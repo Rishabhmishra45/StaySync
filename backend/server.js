@@ -12,6 +12,8 @@ const authRoutes = require('./src/routes/authRoutes');
 const roomRoutes = require('./src/routes/roomRoutes');
 const bookingRoutes = require('./src/routes/bookingRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const stateRoutes = require('./src/routes/stateRoutes');
+const cityRoutes = require('./src/routes/cityRoutes');
 
 // Initialize app
 const app = express();
@@ -31,6 +33,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/states', stateRoutes);
+app.use('/api/cities', cityRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
